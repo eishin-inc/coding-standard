@@ -1,0 +1,627 @@
+# 目的
+
+<aside>
+💡 保守性・品質を高めるためには具体的にどういったコーディングが理想的かを理解し、自身でも同様のスタイルでコーディングできるようにするため
+
+</aside>
+
+この「コーディングスタイル」という項目では、チームで守るべきルールをベースとして、どのようなコーディングなら保守性・品質を保つことができるのか、というものを具体的に記述しています。
+
+---
+
+# 共通事項
+
+## 動作保証対象OS・ブラウザ
+
+- (WIN10)Edge/Firefox/chrome/(Mac)Safari
+- (SP)AndroidOS/iOS
+
+    各最新で動作保証
+
+
+## 基本的ルール
+
+※prettierの設定は[この記事](https://ralacode.com/blog/post/vscode-prettier/)に従って行なってください。
+
+| 項目 | 定義内容 |
+| --- | --- |
+| インデント | スペース2つ分 |
+| フォーマッター | Prettier |
+
+## その他
+
+不要なファイルや画像、コメントやコードは消しましょう。
+
+不要なファイル＝何も記述していないファイルや、どこも使用していないファイルなど
+
+不要なコメントやコード＝デバッグのために使用した`console.log`やtodoを記述したコメント、自分のメモなど
+
+---
+
+# HTML編
+
+## マークアップ言語仕様
+
+| 項目 | 定義内容 |
+| --- | --- |
+| DOCTYPE | `<!DOCTYPE html>` |
+| 文字コード | UTF-8 |
+| lang | ja |
+| viewport(width) | width=device-width,initial-scale=1 |
+
+## 基本的なコーディングルール
+
+| 項目 | 定義内容 |
+| --- | --- |
+| 要素、属性 | 小文字で記述（非推奨：`<A HREF =''>`推奨：`<a href=''>`） |
+| id 名 | キャメルケース（推奨:id=”testIdName”） |
+| class名 | キャメルケース（推奨:class=”testClassName”） |
+| JavaScriptでハンドリングする要素 | 接頭辞`js-`を付与しキャメルケースで記述する |
+| コメント | 大まかな機能ごとで必要に応じてコードの説明を記述する |
+| リソースのプロトコル | 省略しない<br />非推奨：`<img src='://dummy.site/profile.jpg' alt='著者'>`<br />推奨：`<img src='https://dummy.site/profile.jpg' alt='著者'>` |
+| 画像 | 文書の内容上、必要不可欠な画像は`<img>`で記述。装飾目的に使用する画像はcssプロパティのbackground-imageを使用する。ただし、デザインが変わったりWordPressで管理できるようにする場合は、上記の限りではない |
+
+```html
+<!-- 上記例 -->
+
+<!-- 推奨 -->
+<!-- 著者プロフィール -->
+<section id="profileSection" class="profile">
+  <h1>プロフィール</h1>
+  <img src="https://dummy.site/profile.jpg" alt="著者">
+  <p class="profile_name">作者 太郎</p>
+</section>
+<!-- // 著者プロフィール -->
+
+<!-- 非推奨 -->
+<SECTION id="profile-section" class="profile">
+  <H1>プロフィール</H1>
+  <img src="://dummy.site/profile.jpg" alt="著者">
+  <p class="profile_name">作者 太郎</p>
+</SECTION>
+```
+
+## 関係を分離する
+
+HTML(構造)とCSS(見た目)とScript(動作)は独立させて、3つの相互関係はなるべく最小限にする。
+
+ドキュメントやテンプレートにはHTMLだけを含むようにし、HTMLには構造だけを表現するようにする。見た目に関するあらゆる内容はCSSへ、動作に関してはScriptへ記述する。
+
+HTMLからCSSやScriptへのリンクはなるべく減らし（まとめて）、互いのファイル間の接触部分をなるべく少なくする。（サーバーへのリクエストを減らす）
+
+メンテナンス面を考慮すれば、構造、見た目、動作の分離は重要。CSSやScriptの更新よりも、HTMLドキュメントやテンプレートの修正コストのほうが常に大きいです。
+
+```html
+<!-- 非推奨 -->
+<!DOCTYPE html>
+<title>HTML sucks</title>
+<link rel="stylesheet" href="base.css" media="screen">
+<link rel="stylesheet" href="grid.css" media="screen">
+<link rel="stylesheet" href="print.css" media="print">
+<h1 style="font-size: 1em;">HTML sucks</h1>
+<p>I’ve read about this on a few sites but now I’m sure:
+  <u>HTML is stupid!!1</u>
+<center>I can’t believe there’s no way to control the styling of
+  my website without doing everything all over again!</center>
+<script>
+	alert('Hello World);
+</script>
+
+<!-- 推奨 -->
+<!DOCTYPE html>
+<title>My first CSS-only redesign</title>
+<link rel="stylesheet" href="default.css">
+<h1>My first CSS-only redesign</h1>
+<p>I’ve read about this on a few sites but today I’m actually
+  doing it: separating concerns and avoiding anything in the HTML of
+  my website that is presentational.</p>
+<p>It’s awesome!</p>
+
+<script src='script.js'></script>
+```
+
+## その他
+
+- **type属性**
+
+    stylesheetとscriptのtype属性は省略する。HTMLではデフォルトで解釈されるため必要ない。
+
+    ```html
+    <!-- 推奨 -->
+    <link rel="stylesheet" href="//www.google.com/css/maia.css">
+    <script src="//www.google.com/js/gweb/analytics/autotrack.js"></script>
+
+    <!-- 非推奨 -->
+    <link rel="stylesheet" href="//www.google.com/css/maia.css"　type="text/css">
+    <script src="//www.google.com/js/gweb/analytics/autotrack.js"　type="text/javascript"></script>
+    ```
+
+- **HTML引用符**
+
+    属性値の引用符は、ダブルクオーテーション(")で統一する。これはprettierが自動で整形してくれます。
+
+    ```html
+    <!-- 推奨 -->
+    <a class="maia-button maia-button-secondary">Sign in</a>
+
+    <!-- 非推奨 -->
+    <a class='maia-button maia-button-secondary'>Sign in</a>
+    ```
+
+- **実体参照**
+
+    更新後：UTF-8においては、文字参照するものはほとんどないようです。下記の文字だけエスケープしてください。（[参考記事](https://webtan.impress.co.jp/e/2022/11/18/43668)）
+
+    ```ebnf
+    < (→ &lt; )
+    > (→ &gt; )
+    & (→ &amp; )
+    " (→ &quot; )
+    ' (→ &apos; )
+    ```
+
+    更新前：~~UTF-8において、`&mdash;, &rdquo;, or &#x263a;`などの実体参照を使用する必要はない。例外としてHTMLで特別な意味を持つ"\<"や"&"には使用する。（©︎などはよく実体参照する）~~
+
+    ~~また、コピーライトなどは`<small>~</small>`を使用するようにします。~~
+
+    ```html
+    <!-- 更新前のコード例です -->
+    <!-- 推奨 -->
+    The currency symbol for the Euro is “€”.
+    <small>&copy; 株式会社EISHIN</small>
+
+    <!-- 非推奨 -->
+    The currency symbol for the Euro is &ldquo;&eur;&rdquo;.
+    <small>©︎ 株式会社EISHIN</small>
+    ```
+
+- **~~target=”_blank”を単体で使用しない~~**
+
+    更新後：現在のブラウザではアンカータグにtarget=’_blank’を使用するとrel=’noopener’と似たような挙動をとるようになっていますので、rel=’noopener’属性の付与は不必要です。（参考：[MDN](https://developer.mozilla.org/ja/docs/Web/HTML/Element/a#rel)）
+
+    更新前：~~外部リンクを設定する際によく使用する`target=”_blank”`ですが、これにはセキュリティ上の脆弱性があります。どのような脆弱性があるかを簡単に説明すると、`target=”_blank”`を使用して別タブに飛んだ際に悪意のあるJavaScriptが読み込まれて知らぬ間に違うサイトに誘導されてしまう、なんてことが起こりうるのです。そこでa要素には必ず`rel=”noopener”`をつけるようにします。こうすることでJavaScriptの挙動を制御することができます。詳しいことは[ここ](https://webdesign-progress-diary.com/coding-design/html/target_blank-vulnerability/)を参照ください。~~
+
+    ```html
+    <!-- 更新前のコード例です -->
+    <!-- 推奨 -->
+    <a target="_blank" rel="noopener"></a>
+
+    <!-- 非推奨 -->
+    <a target="_blank"></a>
+    ```
+
+
+---
+
+# CSS/SCSS編
+
+## ディレクトリ構造
+
+```powershell
+[styles]
+	├ style.scss----------：分割されたSCSSファイルを統合する役目を持ちます
+	│
+	├ [foundation]--------：スタイルの基本設定を記述したファイルを格納するディレクトリです。このディレクトリ内のファイルは基本的に全案件で必須です。
+	│  ├ _base.scss-------：全ページ共通のスタイルを記述するファイルです
+	│  ├ _mixin.scss------：Sassのミックスインを記述するファイルです。メディアクエリやz-indexなどを管理します。
+	│  ├ _reset.scss------：スタイルのリセットやノーマライズをするファイルです
+	│  ├ _utility.scss----：微調整用のクラスなどを定義するファイルです。唯一 !important の使用ができます。
+	│  └ _variables.scss--：変数設定用のファイルです。色やフォトサイズなどを管理します。
+	│
+	├ [layout]------------：全体共通で使用するレイアウトに関するスタイルを記述したファイルを格納するディレクトリです。このディレクトリ内のファイルは案件ごとに変わります。適宜必要なファイルを作成・削除してください。
+	│  ├ _import.scss-----：layoutフォルダ内のファイルを全て@forwardします。
+	│  ├ _breadcrumb.scss-：パンくずリストのスタイルを記述するファイルです
+	│  ├ _footer.scss-----：フッターのスタイルを記述するファイルです
+	│  ├ _header.scss-----：ヘッダーのスタイルを記述するファイルです
+	│  ├ _layout.scss-----：全体のレイアウトのスタイルを記述するファイルです
+	│  └ _side.scss-------：サイドバーのスタイルを記述するファイルです
+	│
+	├ [component]---------：各種コンポーネントのスタイルを記述したファイルを格納するディレクトリです。このディレクトリ内のファイルは案件ごとに変わる可能性があります。適宜必要なファイルを作成・削除してください。
+	│  ├ _import.scss-----：componentフォルダ内のファイルを全て@forwardします。
+	│  ├ _btn.scss--------：ボタンのスタイルを記述するファイルです
+	│  ├ _title.scss------：タイトル(見出し)のスタイルを記述するファイルです
+	│  ├ _icon.scss-------：アイコンのスタイルを記述するファイルです
+	│  ├ _form.scss-------：フォーム関連のスタイルを記述するファイルです
+	│  ├ _text.scss-------：テキストのスタイルを記述するファイルです
+	│  ├ _navi.scss-------：ナビゲーションのスタイルを記述するファイルです
+	│  ├ _img.scss--------：画像のスタイルを記述するファイルです
+	│  ├ _list.scss-------：リストのスタイルを記述するファイルです
+	│  ├ _table.scss------：テーブルのスタイルを記述するファイルです
+	│  ├ _line.scss-------：区切り線のスタイルを記述するファイルです
+	│  ├ _video.scss------：ビデオのスタイルを記述するファイルです
+	│  ├ _slide.scss------：スライドのスタイルを記述するファイルです
+	│  └ _other.scss------：その他のスタイルを記述するファイルです
+	│
+	└ [project]-----------：各ページ独自のスタイルを記述したファイルを格納するディレクトリです。
+		   ├ _import.scss-----：projectフォルダ内のファイルを全て@forwardします。
+	     ├ _index.scss------：トップページのスタイルを記述するファイルです
+	     └ _about.scss------：aboutページのスタイルを記述するファイルです
+
+```
+
+## 設計手法
+
+FLOCSSをベースとしてディレクトリを設計する。FLOCSSで設計するにあたり[こちら](https://www.to-r.net/media/flocss-01/)を読んでおいてください。<br />
+[FLOCSSで設計されたホームページ例](https://wd-flat.com/)
+
+また、クラス名の命名にはBEMを使用します。<br />
+[【命名規則】BEMを使った書き方についてまとめてみた【CSS】 - Qiita](https://qiita.com/takahirocook/items/01fd723b934e3b38cbbc#:~:text=BEM%E3%81%A8%E3%81%AF,%E3%81%97%E3%81%A6%E3%81%84%E3%81%8F%E6%89%8B%E6%B3%95%E3%81%A7%E3%81%99%E3%80%82&text=%E4%BF%9D%E5%AE%88%E6%80%A7%E3%81%AE%E9%AB%98%E3%81%95,%E8%A6%8F%E5%89%87%E3%81%A0%E3%81%A8%E6%80%9D%E3%81%84%E3%81%BE%E3%81%99%E3%80%82)
+
+## 命名規則
+
+命名はFLOCSSベースでしてください。他は特に規則は設けませんがわかりやすい名前をつけましょう。以下のような命名は望ましくありません<br />
+- 連番だけや意図が推測しずらい<br />
+    →詳細度の高い命名にします。連番を使用する場合もちゃんと内容が推測しやすいものにしましょう。
+
+- 文字を省略しすぎている<br />
+    →ex) ttl(title)やsrc(source)など、文字省略は一般的に省略されることが多い単語に限り使用可能にします。予測が難しい単語は省略しないようにしましょう。
+
+
+## 基本的な記述ルール
+
+| 項目 | 定義内容 |
+| --- | --- |
+| idセレクタ | セレクタ優先順位の計算が面倒になるので id での指定は避ける |
+| 要素型（タイプ）セレクタ | あとからの修正に弱いので要素型セレクタの指定は控える |
+| ネストの深さ | 可読性・可搬性が下がるのでネストは3階層程度に収める |
+| 数値 | 小数点以下は最初の0を省略できるが基本的に省略しない |
+| ショートハンド | 原則使用しない（一部除く。対象のケースは例に記載） |
+| フォント等の単位 | remの使用を推奨 |
+| margin | marginを当てる方向を上下・左右統一する。[参考](https://design-remarks.com/margin-top-or-bottom/) |
+| 改行 | 複数セレクタを使用する場合、セレクタ毎に改行する |
+| 空白 | セレクタ、プロパティの後に空白を1つ分入れる |
+| !importantの使用 | ヘルパークラス(u-で始まる）のみ認める |
+
+### 例
+
+- idセレクタ
+
+    ```scss
+    // 推奨
+    .button {
+    	color: black;
+    }
+
+    // 非推奨
+    #button {
+    	color: black;
+    }
+    ```
+
+- 要素型（タイプ）セレクタ
+
+    ```scss
+    // 推奨
+    .tittle {
+     font-size: 24px;
+    }
+
+    // 非推奨
+    h2 {
+    	font-size: 24px;
+    }
+
+    ```
+
+- ネストの深さ<br />
+    可読性・可搬性を高めるためにネストは3階層程度にとどめます。<br />
+    block要素とelement要素はアンダースコアを2つ繋げて記述します。
+
+    ```scss
+    .Block__Element {}
+    ```
+
+    element要素のネストは2階層までとします。
+
+    ```scss
+    // 推奨
+    .Block__Element01__Element02 {}
+
+    // 非推奨
+    .Block__Element01__Element02__Element03 {}
+    ```
+
+    modifierを使用する場合には元のクラスと切り離して記述してください。
+
+    ```html
+    <p class="block__element --modifier">テキスト</p>
+
+    <style>
+    </style>
+    ```
+
+- ショートハンド<br />
+    ショートハンドとはCSSプロパティの一括指定のことです。[一括指定プロパティ](https://developer.mozilla.org/ja/docs/Web/CSS/Shorthand_properties)<br />
+    ショートハンドは非常に便利ですが、後の修正等を考慮した場合はそうとも言い切れません。
+
+    ショートハンドのメリット
+
+    - 短く記述できる
+
+    ショートハンドのデメリット
+
+    - ショートハンドは以前設定した値を上書きする
+    - 可読性・保守性が低下する
+
+    特に可読性・保守性は深刻な問題となります。
+
+    ```scss
+    // ロングハンド
+    font-style: italic;
+    font-weight: bold;
+    font-size: .8em;
+    line-height: 1.2;
+    font-family: Arial, sans-serif;
+
+    // ショートハンド
+    font: italic bold .8em/1.2 Arial, sans-serif;
+    ```
+
+    上記のように可読性の低下を招き、ひいては保守性の低下につながります。「これってどのプロパティだっけ？」と少しでも考えるようなら、ロングハンドを使用した方がミスは少ないです。
+
+    ただ、ショートハンドは記述を省略でき便利なものですので、一部場合使用を認めます。下記場合のショートハンドは使用可能です。
+
+    ```scss
+    // borderのように常にセットで扱われるプロパティを記述する時
+    border: 1px solid #fff;
+
+    // 中央揃え目的のmargin
+    margin: 0 auto;
+
+    // ショートハンドをロングハンドのようにかけるプロパティ
+    margin: 8px 12px 8px 12px;
+    padding: 8px 12px 8px 12px;
+    ```
+
+- 改行
+
+    ```scss
+    //推奨
+    .example1,
+    .example2,
+    .example3 {
+    	font-size: 10px;
+    }
+
+    //非推奨
+    .example1, .example2, .example3 {
+    	font-size: 10px;
+    }
+    ```
+
+- 空白
+
+    ```scss
+    //推奨
+    .example {
+    　font-size: 10px;
+    }
+
+    //非推奨
+    .example{
+    	font-size:10px;
+    }
+    ```
+
+
+## ****LibSass (node-sass) ではなく Dart Sass (sass) を使う****
+
+ LibSassはすでに **非推奨** となっているのでDart Sassを使用します。
+
+### `@import`ではなく`@use`を使用する
+
+Dart Sassを使用するに伴い`@import`は非推奨になっています。
+
+## ブレイクポイント
+
+520pxと960pxで設定します。
+
+~519.9px：モバイル
+
+520px~959.9px：タブレット
+
+960px~：パソコン
+
+上記に設定した現在流通しているモバイル、タブレット、パソコンの各端末を上記のブレイクポイントでほぼカバーできるからです。
+
+詳しくは下記をご覧ください。
+
+[【図解で納得】レスポンシブデザインのブレイクポイントの細かすぎる新解釈 [2022年更新版] - webのあれこれ](https://hashimotosan.hatenablog.jp/entry/2020/12/06/182327)
+
+※上記はあくまでデフォルトでのブレイクポイントです。特定の端末ではデザインが崩れてしまうなどといった場合、自身で適切なブレイクポイントを設定してください。
+
+## コメント
+
+一定のルールに従っていれば大丈夫です。
+
+下記は推奨です。エディタにスニペットとして登録すると楽です。
+
+```scss
+// ==========================================================================
+// scss セクションコメントブロック
+// footer や footerなどのまとまったコンポーネントの見出しに使用します
+// ==========================================================================
+
+// scss サブ・セクションコメントブロック
+// コンポーネントにサブセクションがある場合に使います
+// ==========================================================================
+
+// コメント
+```
+
+---
+
+# JavaScript編
+
+## ディレクトリ構造
+
+```powershell
+[scrpts]
+	│
+	├ main.js------：各ページで読み込むjsファイルです。ここでモジュールを呼び出します。
+	│
+	├ [utils]-------：ライブラリを格納するフォルダです。
+	│
+	└ [modules]----：モジュールを格納するフォルダです。
+```
+
+### モジュールについて
+
+ES6から導入されたESModulesにより、ブラウザ上でモジュール管理ができるようになりました。モジュールとは何かというとある一定の機能をもったまとまりのことです。jsファイルをモジュールに分割することで、ページに必要な機能のみを読み込むことで無駄な記述を減らすことができます。[import](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/import) と [export](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/export)について
+
+## 命名規則
+
+| 項目 | 定義内容 | 例 |
+| --- | --- | --- |
+| 変数/関数 | キャメルケース | const testValName = ‘”test”; |
+| クラス | パスカルケース | class TestClassName {} |
+
+### 変数を命名する上で気を付ける事項
+
+- 予約語は使用できない。（[予約語一覧](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Lexical_grammar#%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89)）
+- 1文字目は必ずアルファベットかアンダースコア（ _ ）かドル記号（ $ ）で始めなくてはならない。
+- 2文字目以降は数値（ 0-9 ）も使用可能。
+- 大文字と小文字は区別される。
+- äやüといったUnicodeのアルファベットや\uといった特殊な文字（エスケープシーケンス）も使用可能。しかし、バグの原因となるため、特別な理由がある場合を除いて原則使用禁止。
+
+### 命名のコツ
+
+命名のルールは厳しく設けませんが、読みやすいコードを書く第一歩として**わかりやすい名前をつけること**は非常に大切です。
+
+- 役割がわかる名前
+- 誤解を招かない名前
+
+がわかりやすい名前といえます。
+
+```jsx
+// わかりやすい名前の例
+function setHeaderHeight() { ... }
+
+// わかりにくい名前の例
+function header() { ... }
+```
+
+わかりやすい名前の例では、名前からヘッダーに高さを設定する処理だとわかる一方、わかりにくい名前の方ではヘッダーをどうするのかが一目でわかりません。動詞を用いて命名を使用すると、何をする処理なのかがわかりやすくなります。
+
+[この記事](https://qiita.com/shimataro999/items/ef6cd838d56f1fe87015)が勉強になりますので一度目を通しておいてください。
+
+## 基本的なコーディングルール
+
+- **jQueryは使用しない。**
+
+    どうしても使わないと実現できない場面では、やむなく使用を認めます。ただ、そういう場面でもjQueryを使わなくても実装できないか？と一回考えましょう。間違っても、開発者の実力不足をカバーするような使い方はしないようにしましょう。
+
+- カンマ/セミコロンの後方にはスペースを入れます。またカンマで区切った場合には適宜改行すること。
+
+    ```jsx
+    //推奨
+    const manObj = {
+    	age: 25,
+    	name: 'taro'
+    }
+
+    //非推奨
+    const manObj = {
+    	age:25,name:'taro'
+    }
+    ```
+
+- constとletによる変数宣言
+
+    ES2015(ES6)以上を使用して記述されたコードでは、`var` の代わりに `const` と `let` を使用する。主な理由は`var`はブロックスコープに属せず、スコープ外からでも参照できるため保守性が下がるからです。値が再代入されることを許可しない場合は `const` で宣言し、値の再代入を許可する場合は `let` で宣言します。
+
+    またトップレベル（ファイルの直下）で宣言された変数は他のファイルからでも参照可能です。他のファイルで同じ変数名を使用していると、プログラムが意図しない挙動をとる可能性があります。そのため変数を宣言するときはなるべく関数内やブロックスコープの中で宣言するようにしましょう。
+
+    ```jsx
+    //let,constとvarの挙動の違い
+    if( true ) {
+    		/* ブロックスコープ開始 */
+    		let letVal = "letで宣言";
+    		var varVal = "varで宣言";
+    		/* ブロックスコープ終了 */
+    }
+
+    if( true ) {
+    		console.log( letVal ); //エラー発生
+    		console.log( varVal ); //問題なく取得可能
+    }
+    ```
+
+- 文字列について
+
+    文字列には基本ダブルクオート`””`を使用する。（バッククオートとの識別がしやすいため）
+
+    また文字連結で`+`は使用せずに、原則テンプレートリテラルを使用する。
+
+    ```jsx
+    //推奨
+    const hello = "こんにちは";
+    const name = "太郎";
+    console.log(`${ name }さん、${ hello }`) //太郎さん、こんにちは
+
+    //非推奨
+    const hello = 'こんにちは';
+    const name = '太郎';
+    console.log( name + 'さん、' + hello ) //太郎さん、こんにちは
+    ```
+
+- 厳格な等価性の使用
+
+    抽象的な等価性（`==`）と厳格な等価性（`===`）の違いは**型**まで確認するかどうかです。抽象的な等価性では予期せぬバグを生む原因となるので、基本的に厳格な等価性を使用するようにします
+
+    ```jsx
+    //抽象的な等価性
+    1 == 1;    //結果はtrue
+    1 == "1";  //結果はtrue
+    1 == true; //結果はtrue
+
+    //厳格な等価性
+    1 === 1;    //結果はtrue
+    1 === "1";  //結果はfalse
+    1 === true; //結果はfalse
+    ```
+
+- 配列/オブジェクトの初期化
+
+    原則それぞれ、配列リテラル（`[]`）オブジェクトリテラル（`{}`）を使用して初期化してください。
+
+    ```jsx
+    //推奨
+    let arry = [];
+    let obj = {}
+
+    //非推奨
+    let arry = new Array();
+    let obj = new Object();
+    ```
+
+- 文末のセミコロン
+
+    原則使用しましょう。一部省略できない記法でバグが生まれたり、minifyできないなどが予想されます。
+
+    ```jsx
+    // 推奨
+    const hello = "こんにちは";
+
+    // 非推奨
+    const hello = "こんにちは"
+    ```
+
+- 関数やオブジェクトなどの定義ブロックの前後は改行で区切ります。
+
+    ```jsx
+    // 推奨
+    function() {
+    	...
+    }
+    const arrowFn = () => {
+    	...
+    };
+
+    // 非推奨
+    function() { ... }
+    const arrowFn = () => { ... };
+
+    // ※ただしアロー関数の処理が1行の場合は、上記の限りではありません。
+    const arrowFn = name => console.log(`Hello ${name}`);
+    ```
